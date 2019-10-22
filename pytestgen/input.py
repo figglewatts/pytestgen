@@ -20,12 +20,14 @@ class PyTestGenInputFile:
 
     Attributes:
         name (str): The filename of the source file.
-        path (str): The path (relative to project dir) of the source file.
+        path (str): The directory (relative to project dir) of the source file.
+        full_path (str): The full path to the input file.
         test_name (str): The name of the test file (or None if not generated).
     """
     def __init__(self, name: str, path: str, test_name: str = None) -> None:
         self.name = name
         self.path = path
+        self.full_path = os.path.join(path, name)
         self.test_name = test_name
 
 

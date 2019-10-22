@@ -7,12 +7,17 @@ Author:
 """
 import click
 
-from ..input import _get_python_files_from_package
+from .. import input
+from .. import parse
 
 
 @click.command()
 def cli():
-    _get_python_files_from_package('pytestgen', '')
+    input_set = input.package("pytestgen", "")
+    parsed_set = parse.parse_input_set(input_set)
+    for f in parsed_set.parsed_files:
+        for func in f.testable_funcs:
+            print(func.get_test_name())
 
 
 if __name__ == "__main__":
