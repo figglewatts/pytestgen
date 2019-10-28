@@ -7,18 +7,20 @@ Author:
 """
 import click
 
-from .. import input
-from .. import parse
+from pytestgen import load
+from pytestgen import parse
+from pytestgen import output
 
 
 @click.command()
-def cli():
-    input_set = input.package("pytestgen", "")
-    parsed_set = parse.parse_input_set(input_set)
-    for f in parsed_set.parsed_files:
-        for func in f.testable_funcs:
-            print(func.get_test_name())
+@click.argument("input_dir", nargs=-1, type=str)
+@click.argument("output_dir", nargs=1, type=str)
+def cli(input_dir, output_dir):
+    for in_dir in input_dir:
+        input_set = load.directory(in_dir, output_dir)
+        parsed_set = parse.parse_input_set(input_set)
+        output.output_tests(parsed_set)
 
 
 if __name__ == "__main__":
-    cli()
+    cli.invoke(ctx={})

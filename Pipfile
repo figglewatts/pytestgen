@@ -11,6 +11,7 @@ pytestgen = {editable = true,path = "."}
 
 [packages]
 click = "*"
+jinja2 = "*"
 
 [requires]
 python_version = "3.7"

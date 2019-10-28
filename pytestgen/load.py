@@ -12,8 +12,6 @@ from os import path
 import pkgutil
 from typing import List
 
-from . import output
-
 
 class PyTestGenInputFile:
     """An input source file to have tests generated for.
@@ -22,13 +20,21 @@ class PyTestGenInputFile:
         name (str): The filename of the source file.
         path (str): The directory (relative to project dir) of the source file.
         full_path (str): The full path to the input file.
-        test_name (str): The name of the test file (or None if not generated).
     """
-    def __init__(self, name: str, path: str, test_name: str = None) -> None:
+    def __init__(self, name: str, file_path: str) -> None:
         self.name = name
-        self.path = path
-        self.full_path = os.path.join(path, name)
-        self.test_name = test_name
+        self.path = file_path
+        self.full_path = path.join(file_path, name)
+
+    def get_module(self) -> str:
+        return self.full_path.replace(os.sep, ".")[:-3]
+
+    def get_test_file_path(self, output_dir: str) -> str:
+        return path.join(output_dir, self.path,
+                         f"test_{self.name[:-3].strip('_')}.py")
+
+    def has_test_file(self, output_dir: str) -> bool:
+        return path.exists(self.get_test_file_path(output_dir))
 
 
 class PyTestGenInputSet:
@@ -84,11 +90,7 @@ def filename(file: str, output_dir: str) -> PyTestGenInputSet:
     """
     input_filename = path.basename(file)
     input_dirname = path.dirname(file)
-    # check to see if a test file already existed in output_dir
-    test_name = output.find_test_file(file, output_dir)
-    input_files = [
-        PyTestGenInputFile(input_filename, input_dirname, test_name)
-    ]
+    input_files = [PyTestGenInputFile(input_filename, input_dirname)]
     return PyTestGenInputSet(output_dir, input_files)
 
 
@@ -106,10 +108,7 @@ def _get_python_files_from_dir(directory_path: str,
     result = []
     for dir_path, _, file_names in os.walk(directory_path):
         for file_name in [f for f in file_names if f.endswith(".py")]:
-            # check to see if a test file already existed in output_dir
-            test_name = output.find_test_file(path.join(dir_path, file_name),
-                                              output_dir)
-            result.append(PyTestGenInputFile(file_name, dir_path, test_name))
+            result.append(PyTestGenInputFile(file_name, dir_path))
     return result
 
 
@@ -136,11 +135,8 @@ def _get_python_files_from_package(package_name: str, output_dir: str
     for importer, mod_name, _ in possible_packages:
         file_path = importer.find_spec(mod_name).origin
 
-        # check to see if a test file already existed in output_dir
-        test_name = output.find_test_file(file_path, output_dir)
-
         # break the filepath down into name and path
         file_name = path.basename(file_path)
         file_path = path.dirname(file_path)
-        result.append(PyTestGenInputFile(file_name, file_path, test_name))
+        result.append(PyTestGenInputFile(file_name, file_path))
     return result

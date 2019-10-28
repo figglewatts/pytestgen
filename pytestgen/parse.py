@@ -9,29 +9,47 @@ in module or class scope.
 Author:
     Figglewatts <me@figglewatts.co.uk>
 """
+from abc import ABC, abstractmethod
 import ast
 from typing import List
 
-from .input import PyTestGenInputSet, PyTestGenInputFile
+from pytestgen import load
 
 
-class TestableFunc:
+class TestableFunc(ABC):
     """TestableFunc is used to store the function def of a function that
     should have a test generated for it.
 
     Attributes:
         function_def (ast.FunctionDef): The function def of this function.
-        prefix (str): The prefix to give the test function. Used for scoping.
     """
-    def __init__(self, function_def: ast.FunctionDef, prefix: str = None):
+    @abstractmethod
+    def __init__(self, function_def: ast.FunctionDef):
         self.function_def = function_def
-        self.prefix = prefix
+
+    @abstractmethod
+    def get_test_name(self) -> str:
+        pass
+
+
+class ModuleTestableFunc(TestableFunc):
+    def __init__(self, function_def: ast.FunctionDef, module: ast.Module):
+        super().__init__(function_def)
+        self.module = module
 
     def get_test_name(self) -> str:
-        """Get the test name. Test name is "test_[{prefix}_]{function_name}".
-        """
-        prefix = self.prefix + "_" if self.prefix else ""
-        return f"test_{prefix}{self.function_def.name}"
+        return f"test_{self.function_def.name.strip('_')}"
+
+
+class ClassTestableFunc(TestableFunc):
+    def __init__(self, function_def: ast.FunctionDef, class_def: ast.ClassDef):
+        super().__init__(function_def)
+        self.class_def = class_def
+
+    def get_test_name(self) -> str:
+        class_name = self.class_def.name.lower().strip('_')
+        function_name = self.function_def.name.lower().strip('_')
+        return f"test_{class_name}_{function_name}"
 
 
 class PyTestGenParsedFile:
@@ -42,7 +60,7 @@ class PyTestGenParsedFile:
         input_file (PyTestGenInputFile): The input file that was parsed.
     """
     def __init__(self, testable_funcs: List[TestableFunc],
-                 input_file: PyTestGenInputFile):
+                 input_file: load.PyTestGenInputFile):
         self.testable_funcs = testable_funcs
         self.input_file = input_file
 
@@ -55,21 +73,47 @@ class PyTestGenParsedSet:
         input_set (PyTestGenInputSet): The input set used to generate this.
     """
     def __init__(self, parsed_files: List[PyTestGenParsedFile],
-                 input_set: PyTestGenInputSet):
+                 input_set: load.PyTestGenInputSet):
         self.parsed_files = parsed_files
         self.input_set = input_set
 
 
-def parse_input_set(input_set: PyTestGenInputSet) -> PyTestGenParsedSet:
+def parse_input_set(input_set: load.PyTestGenInputSet) -> PyTestGenParsedSet:
     """Parse the files in an input set to get the testable functions from them.
     """
     parsed_files = []
     for src_file in input_set.input_files:
-        parsed_files.append(_parse_source_file(src_file))
+        parsed_file = _parse_source_file(src_file)
+        if len(parsed_file.testable_funcs) == 0:
+            continue
+        parsed_files.append(parsed_file)
     return PyTestGenParsedSet(parsed_files, input_set)
 
 
-def _parse_source_file(src: PyTestGenInputFile) -> PyTestGenParsedFile:
+def get_existing_test_functions(test_file_path: str) -> List[str]:
+    """Get the existing test_* functions from a test file."""
+    with open(test_file_path, "r") as test_file:
+        syntax_tree = ast.parse(test_file.read())
+        for node in ast.walk(syntax_tree):
+            if isinstance(node, ast.Module):
+                # get functions that start with "test_"
+                return [
+                    fname for fname in _get_module_function_names(node)
+                    if fname.startswith("test_")
+                ]
+
+
+def _get_module_function_names(module_node: ast.Module) -> List[str]:
+    """For a module node, get a list of the function names defined in the 
+    module scope."""
+    result = []
+    for node in ast.iter_child_nodes(module_node):
+        if isinstance(node, ast.FunctionDef):
+            result.append(node.name)
+    return result
+
+
+def _parse_source_file(src: load.PyTestGenInputFile) -> PyTestGenParsedFile:
     """Parse a single source file to get its testable functions."""
     with open(src.full_path, "r") as src_file:
         # parse the file into an AST and get testable functions by iterating
@@ -113,7 +157,7 @@ def _get_module_testable_funcs(module_node: ast.Module) -> List[TestableFunc]:
     testable_funcs = []
     for node in ast.iter_child_nodes(module_node):
         if isinstance(node, ast.FunctionDef):
-            testable_funcs.append(TestableFunc(node))
+            testable_funcs.append(ModuleTestableFunc(node, module_node))
     return testable_funcs
 
 
@@ -129,9 +173,9 @@ def _get_class_testable_funcs(class_node: ast.ClassDef) -> List[TestableFunc]:
     testable_funcs = []
     for node in ast.iter_child_nodes(class_node):
         if isinstance(node, ast.FunctionDef):
-            # use the class name as a prefix for the test function name, as
-            # there may be module functions with names that overlap with this
-            # function name
-            testable_funcs.append(
-                TestableFunc(node, prefix=class_node.name.lower()))
+            testable_funcs.append(ClassTestableFunc(node, class_node))
     return testable_funcs
+
+
+def this_is_a_new_function():
+    pass
