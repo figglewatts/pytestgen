@@ -11,6 +11,7 @@ Author:
 """
 from abc import ABC, abstractmethod
 import ast
+import logging
 from typing import List
 
 from pytestgen import load
@@ -45,6 +46,17 @@ class ClassTestableFunc(TestableFunc):
     def __init__(self, function_def: ast.FunctionDef, class_def: ast.ClassDef):
         super().__init__(function_def)
         self.class_def = class_def
+        self._find_init_function()
+        if self.init_function_def is None:
+            logging.warning("ClassTestableFunc could not find class __init__()"
+                            ", did the class have a constructor?")
+
+    def _find_init_function(self):
+        for node in self.class_def.body:
+            if isinstance(node, ast.FunctionDef) and node.name == "__init__":
+                self.init_function_def = node
+                return
+        self.init_function_def = None
 
     def get_test_name(self) -> str:
         class_name = self.class_def.name.lower().strip('_')

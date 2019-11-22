@@ -7,6 +7,7 @@ Author:
 """
 import os
 from os import path
+from typing import List
 
 from pytestgen import parse
 from pytestgen import load
@@ -18,28 +19,36 @@ UNTESTABLE_FUNCTIONS = ["__init__"]
 TEST_FILE_MODULES = ["pytest"]
 
 
-def output_tests(parsed_set: parse.PyTestGenParsedSet):
+def output_tests(parsed_set: parse.PyTestGenParsedSet,
+                 include: List[str] = []):
     for parsed_file in parsed_set.parsed_files:
-        _output_parsed_file(parsed_file, parsed_set.input_set.output_dir)
+        _output_parsed_file(parsed_file, parsed_set.input_set.output_dir,
+                            include)
 
 
 def _output_parsed_file(parsed_file: parse.PyTestGenParsedFile,
-                        output_dir: str):
+                        output_dir: str,
+                        include: List[str] = []):
     # check if we were able to find an existing test file for this src file
     if parsed_file.input_file.has_test_file(output_dir):
-        _output_to_existing(parsed_file, output_dir)
+        _output_to_existing(parsed_file, output_dir, include)
     else:
-        _output_to_new(parsed_file, output_dir)
+        _output_to_new(parsed_file, output_dir, include)
 
 
 def _output_to_existing(parsed_file: parse.PyTestGenParsedFile,
-                        output_dir: str):
+                        output_dir: str,
+                        include: List[str] = []):
     test_file_path = parsed_file.input_file.get_test_file_path(output_dir)
     module_name = parsed_file.input_file.get_module()
     existing_functions = parse.get_existing_test_functions(test_file_path)
     tests_to_generate = []
     for testable_func in parsed_file.testable_funcs:
         if testable_func.function_def.name in UNTESTABLE_FUNCTIONS:
+            continue
+
+        # skip the function if it isn't in the include list (if we have one)
+        if any(include) and testable_func.function_def.name not in include:
             continue
 
         if testable_func.get_test_name() not in existing_functions:
@@ -51,7 +60,9 @@ def _output_to_existing(parsed_file: parse.PyTestGenParsedFile,
                 generator.generate_test_func(test_func, module_name))
 
 
-def _output_to_new(parsed_file: parse.PyTestGenParsedFile, output_dir: str):
+def _output_to_new(parsed_file: parse.PyTestGenParsedFile,
+                   output_dir: str,
+                   include: List[str] = []):
     test_file_path = parsed_file.input_file.get_test_file_path(output_dir)
     module_name = parsed_file.input_file.get_module()
     _ensure_dir(test_file_path)
@@ -61,6 +72,10 @@ def _output_to_new(parsed_file: parse.PyTestGenParsedFile, output_dir: str):
 
         for testable_func in parsed_file.testable_funcs:
             if testable_func.function_def.name in UNTESTABLE_FUNCTIONS:
+                continue
+
+            # skip the function if it isn't in the include list (if we have one)
+            if any(include) and testable_func.function_def.name not in include:
                 continue
 
             test_file.write(
