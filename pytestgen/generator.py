@@ -19,7 +19,7 @@ MODULE_TEST_FUNC_TEMPLATE = Template(\
 def {{ data.name }}({% for arg in data.arguments %}{{ arg }}, {% endfor %}expected):
     {% if data.returns -%}
     # result = {{ data.module_path }}.{{ data.src_name }}({% for arg in data.arguments %}{{ arg }}{{ ", " if not loop.last }}{% endfor %})
-    $ assert result == expected
+    # assert result == expected
     {% else -%}
     # TODO: create assertions for {{ data.name }}
     # {{ data.module_path }}.{{ data.src_name }}({% for arg in data.arguments %}{{ arg }}{{ ", " if not loop.last }}{% endfor %})
@@ -32,17 +32,16 @@ CLASS_TEST_FUNC_TEMPLATE = Template(\
 
 
 @pytest.mark.parametrize(
-    "{% for arg in data.arguments %}{{ arg }},{% endfor %}expected",
+    "instance,{% for arg in data.arguments %}{{ arg }},{% endfor %}expected",
     [
         # TODO: fill in test data for {{ data.name }}
-        # pytest.param({% for arg in data.arguments %}, {% endfor %}id="")
+        # pytest.param({{ data.module_path }}.{{ data.class_name }}({% for arg in data.init_arguments %}{{ arg }}{{", " if not loop.last }}{% endfor %}), {% for arg in data.arguments %}, {% endfor %}expected, id="")
     ]
 )
-def {{ data.name }}({% for arg in data.arguments %}{{ arg }}, {% endfor %}expected):
+def {{ data.name }}(instance, {% for arg in data.arguments %}{{ arg }}, {% endfor %}expected):
     # TODO: write test for {{ data.name }}
-    # cls_instance = {{ data.module_path }}.{{ data.class_name }}({% for arg in data.init_arguments %}{{ arg }}{{", " if not loop.last }}{% endfor %})
     {% if data.returns -%}
-    # result = cls_instance.{{ data.src_name }}({% for arg in data.arguments %}{{ arg }}{{ ", " if not loop.last }}{% endfor %})
+    # result = instance.{{ data.src_name }}({% for arg in data.arguments %}{{ arg }}{{ ", " if not loop.last }}{% endfor %})
     # assert result == expected
     {% else -%}
     # TODO: create assertions for {{ data.name }}
@@ -50,9 +49,6 @@ def {{ data.name }}({% for arg in data.arguments %}{{ arg }}, {% endfor %}expect
     {% endif -%}
     pass
 """)
-
-# class_name
-# init_arguments
 
 TEST_FILE_TEMPLATE = Template(\
 """{% for module in modules %}import {{ module }}

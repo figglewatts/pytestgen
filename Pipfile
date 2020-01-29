@@ -8,6 +8,10 @@ pylint = "*"
 yapf = "*"
 setuptools = "*"
 pytestgen = {editable = true,path = "."}
+pipenv-setup = "*"
+pytest = "*"
+pyfakefs = "*"
+pytest-cov = "*"
 
 [packages]
 click = "*"

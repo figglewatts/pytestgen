@@ -36,6 +36,16 @@ class PyTestGenInputFile:
     def has_test_file(self, output_dir: str) -> bool:
         return path.exists(self.get_test_file_path(output_dir))
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, PyTestGenInputFile):
+            return self.name == other.name and \
+                self.path == other.path and \
+                self.full_path == other.full_path
+        return False
+
+    def __repr__(self) -> str:
+        return f"PyTestGenInputFile(\"{self.name}\", \"{self.path}\")"
+
 
 class PyTestGenInputSet:
     """A set of input files for generating tests from.
@@ -48,6 +58,16 @@ class PyTestGenInputSet:
                  input_files: List[PyTestGenInputFile]) -> None:
         self.output_dir = output_dir
         self.input_files = input_files
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, PyTestGenInputSet):
+            return self.input_files == other.input_files \
+                and self.output_dir == other.output_dir
+        return False
+
+    def __repr__(self) -> str:
+        input_files = ", ".join([f"{f.__repr__()}" for f in self.input_files])
+        return f"PyTestGenInputSet(\"{self.output_dir}\", [ {input_files} ])"
 
 
 def directory(dir_path: str, output_dir: str) -> PyTestGenInputSet:
@@ -64,20 +84,6 @@ def directory(dir_path: str, output_dir: str) -> PyTestGenInputSet:
     return PyTestGenInputSet(output_dir, input_files)
 
 
-def package(package_name: str, output_dir: str) -> PyTestGenInputSet:
-    """Create an input set from a python package.
-
-    Args:
-        package_name (str): The package name to use.
-        output_dir (str): The path to output tests to.
-
-    Returns:
-        PyTestGenInputSet: An input set containing the files.
-    """
-    input_files = _get_python_files_from_package(package_name, output_dir)
-    return PyTestGenInputSet(output_dir, input_files)
-
-
 def filename(file: str, output_dir: str) -> PyTestGenInputSet:
     """Create an input set from a single file.
 
@@ -87,7 +93,14 @@ def filename(file: str, output_dir: str) -> PyTestGenInputSet:
     
     Returns:
         PyTestGenInputSet: An input set containing the file.
+
+    Raises:
+        ValueError: If 'file' did not have .py extension.
     """
+    _, ext = path.splitext(file)
+    if ext != ".py":
+        raise ValueError(f"File '{file}' should have .py extension")
+
     input_filename = path.basename(file)
     input_dirname = path.dirname(file)
     input_files = [PyTestGenInputFile(input_filename, input_dirname)]
@@ -109,34 +122,4 @@ def _get_python_files_from_dir(directory_path: str,
     for dir_path, _, file_names in os.walk(directory_path):
         for file_name in [f for f in file_names if f.endswith(".py")]:
             result.append(PyTestGenInputFile(file_name, dir_path))
-    return result
-
-
-def _get_python_files_from_package(package_name: str, output_dir: str
-                                   ) -> List[PyTestGenInputFile]:
-    """Get all the python files in a python package as input files.
-
-    Args:
-        package_name (str): The python package to get files from.
-        output_dir (str): The path to output tests in.
-
-    Returns:
-        List[PyTestGenInputFile]: The list of input files.
-    """
-    result = []
-    possible_packages = [(importer, mod_name, is_pkg)
-                         for (importer, mod_name,
-                              is_pkg) in pkgutil.walk_packages()
-                         if mod_name.startswith(package_name)]
-
-    if len(possible_packages) == 0:
-        logging.warn(f"Could not find any packages with name: {package_name}")
-
-    for importer, mod_name, _ in possible_packages:
-        file_path = importer.find_spec(mod_name).origin
-
-        # break the filepath down into name and path
-        file_name = path.basename(file_path)
-        file_path = path.dirname(file_path)
-        result.append(PyTestGenInputFile(file_name, file_path))
     return result

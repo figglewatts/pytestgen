@@ -61,7 +61,11 @@ def cli(path, output_dir, include):
         if isdir(path_element):
             input_set = load.directory(path_element, output_dir)
         else:
-            input_set = load.filename(path_element, output_dir)
+            try:
+                input_set = load.filename(path_element, output_dir)
+            except ValueError as err:
+                logging.error("ERROR: " + str(err))
+                raise SystemExit(1)
         parsed_set = parse.parse_input_set(input_set)
         output.output_tests(parsed_set, include=include)
 
