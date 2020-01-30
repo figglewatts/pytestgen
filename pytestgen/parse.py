@@ -25,7 +25,7 @@ class TestableFunc(ABC):
         function_def (ast.FunctionDef): The function def of this function.
     """
     @abstractmethod
-    def __init__(self, function_def: ast.FunctionDef):
+    def __init__(self, function_def: ast.FunctionDef) -> None:
         self.function_def = function_def
 
     @abstractmethod
@@ -34,16 +34,27 @@ class TestableFunc(ABC):
 
 
 class ModuleTestableFunc(TestableFunc):
-    def __init__(self, function_def: ast.FunctionDef, module: ast.Module):
+    def __init__(self, function_def: ast.FunctionDef,
+                 module: ast.Module) -> None:
         super().__init__(function_def)
         self.module = module
 
     def get_test_name(self) -> str:
         return f"test_{self.function_def.name.strip('_')}"
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, ModuleTestableFunc):
+            return self.function_def == other.function_def and \
+                self.module == other.module
+        return False
+
+    def __repr__(self) -> str:
+        return f"ModuleTestableFunc({self.function_def}, {self.module})"
+
 
 class ClassTestableFunc(TestableFunc):
-    def __init__(self, function_def: ast.FunctionDef, class_def: ast.ClassDef):
+    def __init__(self, function_def: ast.FunctionDef,
+                 class_def: ast.ClassDef) -> None:
         super().__init__(function_def)
         self.class_def = class_def
         self._find_init_function()
@@ -63,6 +74,16 @@ class ClassTestableFunc(TestableFunc):
         function_name = self.function_def.name.lower().strip('_')
         return f"test_{class_name}_{function_name}"
 
+    def __eq__(self, other) -> bool:
+        if isinstance(other, ClassTestableFunc):
+            return self.function_def == other.function_def and \
+                self.class_def == other.class_def and \
+                self.init_function_def == other.init_function_def
+        return False
+
+    def __repr__(self) -> str:
+        return f"ClassTestableFunc({self.function_def}, {self.class_def})"
+
 
 class PyTestGenParsedFile:
     """Used to store the list of testable functions for a given input file.
@@ -72,9 +93,19 @@ class PyTestGenParsedFile:
         input_file (PyTestGenInputFile): The input file that was parsed.
     """
     def __init__(self, testable_funcs: List[TestableFunc],
-                 input_file: load.PyTestGenInputFile):
+                 input_file: load.PyTestGenInputFile) -> None:
         self.testable_funcs = testable_funcs
         self.input_file = input_file
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, PyTestGenParsedFile):
+            return self.testable_funcs == other.testable_funcs and \
+                self.input_file == other.input_file
+        return False
+
+    def __repr__(self) -> str:
+        testable_funcs = ", ".join([f.__repr__() for f in self.testable_funcs])
+        return f"PyTestGenParsedFile([{testable_funcs}], {self.input_file.__repr__()})"
 
 
 class PyTestGenParsedSet:
@@ -85,9 +116,19 @@ class PyTestGenParsedSet:
         input_set (PyTestGenInputSet): The input set used to generate this.
     """
     def __init__(self, parsed_files: List[PyTestGenParsedFile],
-                 input_set: load.PyTestGenInputSet):
+                 input_set: load.PyTestGenInputSet) -> None:
         self.parsed_files = parsed_files
         self.input_set = input_set
+
+    def __eq__(self, other) -> bool:
+        if isinstance(other, PyTestGenParsedSet):
+            return self.parsed_files == other.parsed_files and \
+                self.input_set == other.input_set
+        return False
+
+    def __repr__(self) -> str:
+        parsed_files = ", ".join([f.__repr__() for f in self.parsed_files])
+        return f"PyTestGenParsedSet([{parsed_files}], {self.input_set.__repr__()})"
 
 
 def parse_input_set(input_set: load.PyTestGenInputSet) -> PyTestGenParsedSet:
@@ -187,7 +228,3 @@ def _get_class_testable_funcs(class_node: ast.ClassDef) -> List[TestableFunc]:
         if isinstance(node, ast.FunctionDef):
             testable_funcs.append(ClassTestableFunc(node, class_node))
     return testable_funcs
-
-
-def this_is_a_new_function():
-    pass

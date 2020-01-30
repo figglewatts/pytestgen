@@ -12,6 +12,7 @@ pipenv-setup = "*"
 pytest = "*"
 pyfakefs = "*"
 pytest-cov = "*"
+munch = "*"
 
 [packages]
 click = "*"
