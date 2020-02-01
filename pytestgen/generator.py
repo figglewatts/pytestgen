@@ -59,6 +59,10 @@ import {{ test_module }}
 
 def generate_class_func(testable_func: parse.ClassTestableFunc,
                         module_path: str) -> str:
+    # don't generate a test if we can't create an instance of the class
+    if testable_func.init_function_def is None:
+        return ""
+
     data = {
         "arguments": [
             arg.arg for arg in testable_func.function_def.args.args

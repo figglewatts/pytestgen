@@ -122,7 +122,7 @@ def parse_input_set(input_set: load.PyTestGenInputSet) -> PyTestGenParsedSet:
 
 def get_existing_test_functions(test_file_path: str) -> List[str]:
     """Get the existing test_* functions from a test file."""
-    with open(test_file_path, "r") as test_file:
+    with open(test_file_path, "r", encoding="utf-8") as test_file:
         syntax_tree = ast.parse(test_file.read())
         for node in ast.walk(syntax_tree):
             if isinstance(node, ast.Module):
@@ -145,7 +145,7 @@ def _get_module_function_names(module_node: ast.Module) -> List[str]:
 
 def _parse_source_file(src: load.PyTestGenInputFile) -> PyTestGenParsedFile:
     """Parse a single source file to get its testable functions."""
-    with open(src.full_path, "r") as src_file:
+    with open(src.full_path, "r", encoding="utf-8") as src_file:
         # parse the file into an AST and get testable functions by iterating
         # through the tree's nodes
         syntax_tree = ast.parse(src_file.read())

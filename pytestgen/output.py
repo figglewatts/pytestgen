@@ -56,7 +56,7 @@ def _output_to_existing(parsed_file: parse.PyTestGenParsedFile,
         if testable_func.get_test_name() not in existing_functions:
             tests_to_generate.append(testable_func)
 
-    with open(test_file_path, "a") as test_file:
+    with open(test_file_path, "a", encoding="utf-8") as test_file:
         for test_func in tests_to_generate:
             test_file.write(
                 generator.generate_test_func(test_func, module_name))
@@ -68,7 +68,7 @@ def _output_to_new(parsed_file: parse.PyTestGenParsedFile,
     test_file_path = parsed_file.input_file.get_test_file_path(output_dir)
     module_name = parsed_file.input_file.get_module()
     _ensure_dir(test_file_path)
-    with open(test_file_path, "w") as test_file:
+    with open(test_file_path, "w", encoding="utf-8") as test_file:
         test_file.write(
             generator.generate_test_file(TEST_FILE_MODULES, module_name))
 
