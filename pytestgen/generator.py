@@ -45,7 +45,7 @@ def {{ data.name }}(instance, {% for arg in data.arguments %}{{ arg }}, {% endfo
     # assert result == expected
     {% else -%}
     # TODO: create assertions for {{ data.name }}
-    # cls_instance.{{ data.src_name }}({% for arg in data.arguments %}{{ arg }}{{ ", " if not loop.last }}{% endfor %})
+    # instance.{{ data.src_name }}({% for arg in data.arguments %}{{ arg }}{{ ", " if not loop.last }}{% endfor %})
     {% endif -%}
     pass
 """)

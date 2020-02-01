@@ -6,7 +6,7 @@ import pytest
 import pytestgen.parse
 from pytestgen.parse import PyTestGenParsedSet, PyTestGenParsedFile
 
-from fixtures import test_input_set
+from fixtures import mock_input_set
 
 TEST_DATA_OUTPUT_PATH = "test_data"
 
@@ -30,8 +30,8 @@ def has_functions(parsed_file: PyTestGenParsedFile,
     return len(missing) == 0, str(missing)
 
 
-def test_parse_input_set(test_input_set):
-    parsed_set = pytestgen.parse.parse_input_set(test_input_set())
+def test_parse_input_set(mock_input_set):
+    parsed_set = pytestgen.parse.parse_input_set(mock_input_set())
     result, missing = has_functions(parsed_set.parsed_files[0], [
         "testable_func", "testable_func_with_args", "testable_func_in_class",
         "__init__"
@@ -39,8 +39,8 @@ def test_parse_input_set(test_input_set):
     assert result == True, f"Missing function(s) in parsed set: {missing}"
 
 
-def test_get_existing_test_functions(test_input_set):
-    input_set = test_input_set(with_output=True)
+def test_get_existing_test_functions(mock_input_set):
+    input_set = mock_input_set(with_output=True)
     existing = pytestgen.parse.get_existing_test_functions(
         input_set.input_files[0].get_test_file_path(input_set.output_dir))
     assert existing == [

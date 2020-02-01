@@ -16,6 +16,8 @@ from typing import List
 
 from pytestgen import load
 
+# TODO: documentation
+
 
 class TestableFunc(ABC):
     """TestableFunc is used to store the function def of a function that
@@ -30,7 +32,7 @@ class TestableFunc(ABC):
 
     @abstractmethod
     def get_test_name(self) -> str:
-        pass
+        raise NotImplementedError("Cannot call abstract method")
 
 
 class ModuleTestableFunc(TestableFunc):
@@ -41,12 +43,6 @@ class ModuleTestableFunc(TestableFunc):
 
     def get_test_name(self) -> str:
         return f"test_{self.function_def.name.strip('_')}"
-
-    def __eq__(self, other) -> bool:
-        if isinstance(other, ModuleTestableFunc):
-            return self.function_def == other.function_def and \
-                self.module == other.module
-        return False
 
     def __repr__(self) -> str:
         return f"ModuleTestableFunc({self.function_def}, {self.module})"
@@ -74,13 +70,6 @@ class ClassTestableFunc(TestableFunc):
         function_name = self.function_def.name.lower().strip('_')
         return f"test_{class_name}_{function_name}"
 
-    def __eq__(self, other) -> bool:
-        if isinstance(other, ClassTestableFunc):
-            return self.function_def == other.function_def and \
-                self.class_def == other.class_def and \
-                self.init_function_def == other.init_function_def
-        return False
-
     def __repr__(self) -> str:
         return f"ClassTestableFunc({self.function_def}, {self.class_def})"
 
@@ -96,12 +85,6 @@ class PyTestGenParsedFile:
                  input_file: load.PyTestGenInputFile) -> None:
         self.testable_funcs = testable_funcs
         self.input_file = input_file
-
-    def __eq__(self, other) -> bool:
-        if isinstance(other, PyTestGenParsedFile):
-            return self.testable_funcs == other.testable_funcs and \
-                self.input_file == other.input_file
-        return False
 
     def __repr__(self) -> str:
         testable_funcs = ", ".join([f.__repr__() for f in self.testable_funcs])
@@ -119,12 +102,6 @@ class PyTestGenParsedSet:
                  input_set: load.PyTestGenInputSet) -> None:
         self.parsed_files = parsed_files
         self.input_set = input_set
-
-    def __eq__(self, other) -> bool:
-        if isinstance(other, PyTestGenParsedSet):
-            return self.parsed_files == other.parsed_files and \
-                self.input_set == other.input_set
-        return False
 
     def __repr__(self) -> str:
         parsed_files = ", ".join([f.__repr__() for f in self.parsed_files])

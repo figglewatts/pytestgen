@@ -6,7 +6,7 @@ Author:
     Figglewatts <me@figglewatts.co.uk>
 """
 import logging
-from os.path import isdir
+from os.path import isdir, exists
 
 import click
 
@@ -57,6 +57,9 @@ def cli(path, output_dir, include):
     logging.basicConfig(level=logging.INFO, format="%(message)s")
 
     for path_element in path:
+        if not exists(path_element):
+            logging.error(f"ERROR: path '{path_element}' did not exist")
+
         input_set = None
         if isdir(path_element):
             input_set = load.directory(path_element, output_dir)
