@@ -19,7 +19,7 @@ jobs:
         pip install setuptools wheel twine
     - name: Extract tag name
       run: |
-        export GIT_TAG=$(git describe --exact-match --abbrev=0)
+        export GIT_TAG=$(git tag --sort=-creatordate | head -n 1)
     - name: Inject version number
       uses: cschleiden/replace-tokens@v1.0
       with:
