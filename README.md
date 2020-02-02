@@ -1,18 +1,12 @@
-<center>
+<p align="center">
 
-<h1>pytestgen</h1>
+<h1 align="center">pytestgen</h1>
 
-Getting tired of writing unit test stubs for your Python code? Easy.
+Getting tired of manually writing unit test stubs for your Python code? Easy.
 
-<div style="width: 20em">
+<img width="300" src="img/main-screenshot.png">
 
-```
-$ pytestgen my_package
-```
-
-</div>
-
-</center>
+</p>
 
 ---
 
