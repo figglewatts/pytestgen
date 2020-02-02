@@ -27,9 +27,7 @@ jobs:
     - name: Test with pytest
       run: |
         pipenv run pytest tests/ --cov pytestgen --cov-report term-missing
-    - name: Codecov
-      uses: codecov/codecov-action@v1.0.5
-      with:
-        token: ${{ secrets.CodecovToken }}
-        fail_ci_if_error: true
+        pipenv run codecov
+      env:
+        CODECOV_TOKEN: ${{ secrets.CodecovToken }}
 
