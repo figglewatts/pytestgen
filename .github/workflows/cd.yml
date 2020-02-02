@@ -17,12 +17,15 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
+    - name: Extract tag name
+      run: |
+        export GIT_TAG=$(git describe --exact-match --abbrev=0)
     - name: Inject version number
       uses: cschleiden/replace-tokens@v1.0
       with:
         files: setup.py
       env:
-        VERSION: ${{ github.ref }}
+        VERSION: ${{ env.GIT_TAG }}
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
