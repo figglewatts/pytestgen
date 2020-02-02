@@ -7,8 +7,8 @@
 Getting tired of manually writing unit test stubs for your Python code? Easy.
 
 <img align="center" src="https://img.shields.io/pypi/v/pytestgen?style=flat-square">
-<img align="center" src="https://img.shields.io/github/workflow/status/figglewatts/pytestgen/ci?style=flat-square">
-<img align="center" src="https://img.shields.io/coveralls/github/figglewatts/pytestgen?style=flat-square">
+<img align="center" src="https://img.shields.io/github/workflow/status/figglewatts/pytestgen/CI?style=flat-square">
+<img align="center" src="https://img.shields.io/codecov/c/github/Figglewatts/pytestgen?style=flat-square">
 
 </div>
 

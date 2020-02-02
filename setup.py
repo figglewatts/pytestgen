@@ -19,7 +19,7 @@ def get_repo_file_content(filename: str) -> str:
 
 setup(
     name="pytestgen",
-    version=get_repo_file_content("version.txt"),
+    version="#{VERSION}#",
     description="Generate pytest tests from your Python source files.",
     long_description=get_repo_file_content("README.md"),
     long_description_content_type="text/markdown",
