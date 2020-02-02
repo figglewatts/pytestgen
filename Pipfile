@@ -13,8 +13,6 @@ pytest = "*"
 pyfakefs = "*"
 pytest-cov = "*"
 munch = "*"
-coveralls = "*"
-pyyaml = "*"
 
 [packages]
 click = "*"
