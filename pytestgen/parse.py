@@ -16,8 +16,6 @@ from typing import List
 
 from pytestgen import load
 
-# TODO: documentation
-
 
 class TestableFunc(ABC):
     """TestableFunc is used to store the function def of a function that
@@ -36,12 +34,26 @@ class TestableFunc(ABC):
 
 
 class ModuleTestableFunc(TestableFunc):
+    """ModuleTestableFunc is used to store information about a testable
+    function in module scope.
+
+    Attributes:
+        function_def (ast.FunctionDef): The function def of this function.
+        module (ast.Module): The module this function is contained within.
+    """
     def __init__(self, function_def: ast.FunctionDef,
                  module: ast.Module) -> None:
         super().__init__(function_def)
         self.module = module
 
     def get_test_name(self) -> str:
+        """Get the test name of this function. Strips leading and trailing
+        underscores.
+
+        For example, a function 'do_cool_stuff()' would have test name
+        'test_do_cool_stuff()'. Similarly, a function called '__init__()' would
+        have test name 'test_init()'.
+        """
         return f"test_{self.function_def.name.strip('_')}"
 
     def __repr__(self) -> str:
@@ -49,6 +61,15 @@ class ModuleTestableFunc(TestableFunc):
 
 
 class ClassTestableFunc(TestableFunc):
+    """ClassTestableFunc is used to store information about a testable
+    function in class scope.
+
+    Attributes:
+        function_def (ast.FunctionDef): The function def of this function.
+        class_def (ast.ClassDef): The class def this function is contained in.
+        init_function_def (ast.FunctionDef): The function def of the class' __init__ function.
+            Will be None if the class didn't have one.
+    """
     def __init__(self, function_def: ast.FunctionDef,
                  class_def: ast.ClassDef) -> None:
         super().__init__(function_def)
@@ -66,6 +87,13 @@ class ClassTestableFunc(TestableFunc):
         self.init_function_def = None
 
     def get_test_name(self) -> str:
+        """Get the test name of this function. Strips leading and trailing
+        underscores.
+
+        For example, a function 'ClassName.do_cool_stuff()' would have test name
+        'test_classname_do_cool_stuff()'. Similarly, a function called 
+        'ClassName.__init__()' would have test name 'test_classname_init()'.
+        """
         class_name = self.class_def.name.lower().strip('_')
         function_name = self.function_def.name.lower().strip('_')
         return f"test_{class_name}_{function_name}"
