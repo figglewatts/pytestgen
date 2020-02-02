@@ -26,10 +26,15 @@ jobs:
         files: setup.py
       env:
         VERSION: ${{ env.GIT_TAG }}
-    - name: Build and publish
-      env:
-        TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+    - name: Debug
       run: |
-        python setup.py sdist bdist_wheel
-        twine upload dist/*
+        cat setup.py
+        echo $GIT_TAG
+        echo ${{ env.GIT_TAG }}
+#     - name: Build and publish
+#       env:
+#         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
+#         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+#       run: |
+#         python setup.py sdist bdist_wheel
+#         twine upload dist/*
