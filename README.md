@@ -1,12 +1,12 @@
-<p align="center">
+<div align="center">
 
 <h1 align="center">pytestgen</h1>
 
 Getting tired of manually writing unit test stubs for your Python code? Easy.
 
-<img width="300" src="img/main-screenshot.png">
+<img width="400" src="img/main-screenshot.png">
 
-</p>
+</div>
 
 ---
 
