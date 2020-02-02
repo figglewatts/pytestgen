@@ -1,3 +1,0 @@
-service_name: github
-parallel: false
-repo_token: #{REPO_TOKEN}#
