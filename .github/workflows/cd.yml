@@ -22,7 +22,7 @@ jobs:
       with:
         files: setup.py
       env:
-        VERSION: $GITHUB_REF
+        VERSION: ${{ github.ref }}
     - name: Build and publish
       env:
         TWINE_USERNAME: ${{ secrets.PYPI_USERNAME }}
