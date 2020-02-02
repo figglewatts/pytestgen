@@ -1,14 +1,17 @@
-<div align="center">
+<div align="center" style="text-align:center">
 
-<h1 align="center">pytestgen</h1>
+<img align="center" width="400" src="img/main-screenshot.png">
+
+<br>
 
 Getting tired of manually writing unit test stubs for your Python code? Easy.
 
-<img width="400" src="img/main-screenshot.png">
+<img align="center" src="https://img.shields.io/pypi/v/pytestgen?style=flat-square">
+<img align="center" src="https://img.shields.io/github/workflow/status/figglewatts/pytestgen/ci?style=flat-square">
+<img align="center" src="https://img.shields.io/coveralls/github/figglewatts/pytestgen?style=flat-square">
 
 </div>
 
----
 
 ## Example
 ```python
