@@ -22,7 +22,13 @@ jobs:
     - name: Lint with pylint
       run: |
         pipenv run pylint pytestgen --disable="C,W,R"
+    - name: Setup coveralls config
+      uses: cschleiden/replace-tokens@v1.0
+      with:
+        files: .coveralls.yml
+      env:
+        REPO_TOKEN: ${{ secrets.CoverallsRepoToken }}
     - name: Test with pytest
       run: |
         pipenv run pytest tests/ --cov pytestgen --cov-report term-missing
-        pipenv run COVERALLS_REPO_TOKEN=${{ secrets.CoverallsRepoToken }} coveralls
+        pipenv run coveralls
