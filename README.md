@@ -1,6 +1,6 @@
 <div align="center" style="text-align:center">
 
-<img align="center" width="400" src="img/main-screenshot.png">
+<img align="center" width="400" src="https://i.imgur.com/gtn07cL.png">
 
 <br>
 
