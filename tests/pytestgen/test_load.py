@@ -1,5 +1,5 @@
 from contextlib import nullcontext as does_not_raise
-from os.path import sep
+from os.path import normpath, sep
 
 import pytest
 import pyfakefs
@@ -26,11 +26,15 @@ def test_directory(fs):
 
 @pytest.mark.parametrize(
     "file,expected,raises",
-    [("/dir/a_file.py",
-      PyTestGenInputSet(
-          "output",
-          [PyTestGenInputFile("a_file.py", f"{sep}dir")]), does_not_raise()),
-     ("txt_file.txt", None, pytest.raises(ValueError))])
+    [
+        (
+            normpath("/dir/a_file.py"),
+            PyTestGenInputSet("output", [PyTestGenInputFile("a_file.py", f"{sep}dir")]),
+            does_not_raise(),
+        ),
+        ("txt_file.txt", None, pytest.raises(ValueError)),
+    ],
+)
 def test_filename(fs, file, expected, raises):
     fs.create_file("/dir/a_file.py")
 
