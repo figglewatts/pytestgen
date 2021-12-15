@@ -23,7 +23,7 @@ class PyTestGenInputFile:
     """
     def __init__(self, name: str, file_path: str) -> None:
         self.name = name
-        self.path = file_path
+        self.path = path.normpath(file_path)
         self.full_path = path.join(file_path, name)
 
     def get_module(self) -> str:
