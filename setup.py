@@ -37,8 +37,6 @@ setup(
     keywords="testing test generation pytest",
     packages=find_packages(exclude=["tests"]),
     python_requires=">=3.7",
-    install_requires=["click>=8.0", "jinja2==2.11.3", "markupsafe==1.1.1"],
-    entry_points={
-        "console_scripts": ["pytestgen=pytestgen.cli.pytestgen:cli"]
-    },
+    install_requires=["click>=8.0", "jinja2>=3.0.0", "markupsafe>=1.1.1"],
+    entry_points={"console_scripts": ["pytestgen=pytestgen.cli.pytestgen:cli"]},
 )
